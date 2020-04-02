@@ -1,11 +1,15 @@
 % Kadai 1
-% Euler angle > direction cosine matrix
+% Euler angle > direction cosine matrix(DCM)
 
 % Euler angle[deg]
-% OMEGA = 
+% [OMEGA i omega]
+% OMEGA: the right ascension of the ascending node
+% incli: the orbital inclination angle
+% omega: the argument of perigee
 EULER_ANGLE_DEG = [40 30 60];
 EULER_ANGLE_RAD = DegToRad(EULER_ANGLE_DEG);
-% Direction cosine matrix
+
+% DCM
 Q = DirectionCosMat(EULER_ANGLE_RAD(1), EULER_ANGLE_RAD(2), EULER_ANGLE_RAD(3));
 disp(Q)
 
