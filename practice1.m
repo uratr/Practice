@@ -1,4 +1,4 @@
-% Kadai 1
+% practice 1
 % Euler angle > direction cosine matrix(DCM)
 
 % Euler angle[deg]
