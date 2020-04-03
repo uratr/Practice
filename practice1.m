@@ -1,6 +1,6 @@
 % practice 1
 % Euler angle > direction cosine matrix(DCM)
-% Reference: Curtis. H,ÅhOrbital Mechanics for engineering students. 2nd edÅh, pp.230-232
+% Reference: Curtis. H, "Orbital Mechanics for engineering students. 2nd ed". pp.230-232
 
 % Euler angle[deg]
 % [OMEGA i omega]
