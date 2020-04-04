@@ -1,7 +1,7 @@
 % practice 2
 % Cartesian > Keplerian
 % Reference:
-% Curtis. H, "Orbital Mechanics for engineering students. 2nd ed". pp.209-215
+% Curtis. H, "Orbital Mechanics for engineering students. 2nd ed", pp.209-215
 
 % Initial Value (Curtis)
 POSITION_KM  = [ -6045  -3490  2500];
