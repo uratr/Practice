@@ -48,27 +48,27 @@ incli_deg = RadToDeg(incli_rad);
 OMEGA_deg = RadToDeg(OMEGA_rad);
 omega_deg = RadToDeg(omega_rad);
 theta_deg = RadToDeg(theta_rad);
-%%
-% Radian >> Degree
-function deg = RadToDeg(rad)
-deg = rad * 180 / pi;
-end
-%%
-% Calculate OMEGA
-function OMEGA = calc_OMEGA(N)
-if N(2) >= 0
-    OMEGA = acos(N(1) / norm(N));
-else
-    OMEGA = 2 * pi - acos(N(1) / norm(N));
-end
-end
-%%
-% calculate omega & theta
-function angle = calc_omethe(A, B, c)
-if c >= 0
-    angle = acos(dot(A / norm(A), B / norm(B)));
-else
-    angle = 2 * pi - acos(dot(A / norm(A), B / norm(B)));
-end
-end
+    %%
+    % Radian >> Degree
+    function deg = RadToDeg(rad)
+    deg = rad * 180 / pi;
+    end
+    %%
+    % Calculate OMEGA
+    function OMEGA = calc_OMEGA(N)
+    if N(2) >= 0
+        OMEGA = acos(N(1) / norm(N));
+    else
+        OMEGA = 2 * pi - acos(N(1) / norm(N));
+    end
+    end
+    %%
+    % calculate omega & theta
+    function angle = calc_omethe(A, B, c)
+    if c >= 0
+        angle = acos(dot(A / norm(A), B / norm(B)));
+    else
+        angle = 2 * pi - acos(dot(A / norm(A), B / norm(B)));
+    end
+    end
 end
