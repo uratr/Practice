@@ -11,51 +11,51 @@ VELOCITY_KMS = [ -3.457 6.618 2.533];
 MU_KM3S2  = 398600;
 
 % Calculate
-[h, i, OMEGA, e, omega, theta]  = CartesianToKeplerian(POSITION_KM, VELOCITY_KMS, MU_KM3S2);
+[h, i, OMEGA, e, omega, theta]  = cartesianToKeplerian(POSITION_KM, VELOCITY_KMS, MU_KM3S2);
 fprintf("h: %.0f \ni: %.1f \nƒ¶: %.1f \ne: %.4f \nƒÖ: %.2f \nƒÆ: %.2f\n", h, i, OMEGA, e, omega, theta);
 
 %%
 %Cartesian > Keplerian
-function [hnorm, incli_deg, OMEGA_deg, enorm, omega_deg, theta_deg]=CartesianToKeplerian(R,V,MU)
+function [hNorm, incliDeg, OMEGADeg, eNorm, omegaDeg, thetaDeg]=cartesianToKeplerian(R,V,MU)
 K         = [0 0 1];
 % Calculation
 distance  = norm(R);
-RadialV   = dot(R, V) / distance;
+radialV   = dot(R, V) / distance;
 
 % h: angular momentum
-hvector   = cross(R, V);
-hnorm     = norm(hvector);
+hVector   = cross(R, V);
+hNorm     = norm(hVector);
 
 % i: inclination
-incli_rad = acos(hvector(3) / hnorm);
+incliRad = acos(hVector(3) / hNorm);
 
 % OMEGA: right ascension of the ascending node
-Nvector   = cross(K, hvector);
-OMEGA_rad = calc_OMEGA(Nvector);
+NVector   = cross(K, hVector);
+OMEGARad = calcOMEGA(NVector);
 
 % e: eccentricity
-evector   = 1 / MU * (cross(V, hvector) - MU * R / distance);
-enorm     = norm(evector);
+eVector   = 1 / MU * (cross(V, hVector) - MU * R / distance);
+eNorm     = norm(eVector);
 
 % omega: argument of perigee
-omega_rad = calc_omethe(Nvector, evector, evector(3));
+omegaRad = calcomethe(NVector, eVector, eVector(3));
 
 % theta: true anomaly
-theta_rad = calc_omethe(evector, R, RadialV);
+thetaRad = calcomethe(eVector, R, radialV);
 
 % Rad > Deg
-incli_deg = RadToDeg(incli_rad);
-OMEGA_deg = RadToDeg(OMEGA_rad);
-omega_deg = RadToDeg(omega_rad);
-theta_deg = RadToDeg(theta_rad);
+incliDeg = radToDeg(incliRad);
+OMEGADeg = radToDeg(OMEGARad);
+omegaDeg = radToDeg(omegaRad);
+thetaDeg = radToDeg(thetaRad);
     %%
     % Radian >> Degree
-    function deg = RadToDeg(rad)
+    function deg = radToDeg(rad)
     deg = rad * 180 / pi;
     end
     %%
     % Calculate OMEGA
-    function OMEGA = calc_OMEGA(N)
+    function OMEGA = calcOMEGA(N)
     if N(2) >= 0
         OMEGA = acos(N(1) / norm(N));
     else
@@ -64,7 +64,7 @@ theta_deg = RadToDeg(theta_rad);
     end
     %%
     % calculate omega & theta
-    function angle = calc_omethe(A, B, c)
+    function angle = calcomethe(A, B, c)
     if c >= 0
         angle = acos(dot(A / norm(A), B / norm(B)));
     else
