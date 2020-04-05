@@ -3,7 +3,7 @@
 % Reference:
 % Curtis. H, "Orbital Mechanics for engineering students. 2nd ed", pp.209-215
 
-% Initial Value (Curtis)
+% Initial Value
 POSITION_KM  = [ -6045  -3490  2500];
 VELOCITY_KMS = [ -3.457 6.618 2.533];
 
