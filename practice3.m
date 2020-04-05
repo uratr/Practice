@@ -2,7 +2,7 @@
 % Keplerian > Cartesian
 % Reference:
 % Curtis. H, "Orbital Mechanics for engineering students. 2nd ed", pp.231-233
-
+clear;
 % Orbital Elements
 h_KM2S = 80000;
 e = 1.4;
