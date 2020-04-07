@@ -2,7 +2,7 @@
 % Euler angle > direction cosine matrix(DCM)
 % Reference: 
 % Curtis. H, "Orbital Mechanics for engineering students. 2nd ed", pp.230-232
-
+clear;
 % Euler angle[deg]
 % [OMEGA incli omega]
 % OMEGA: the right ascension of the ascending node

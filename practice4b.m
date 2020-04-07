@@ -1,4 +1,4 @@
-% practice 4_1
+% practice 4b
 % Initial value > State vector
 % Reference:
 % ”¼—gr—Y, "ƒ~ƒbƒVƒ‡ƒ“‰ğÍ‚Æ‹O“¹İŒv‚ÌŠî‘b", pp.37-

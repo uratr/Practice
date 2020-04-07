@@ -1,4 +1,4 @@
-% practice 4_1
+% practice 4a
 % Initial value > State vector (only ellipse)
 % Reference:
 % Curtis. H, "Orbital Mechanics for engineering students. 2nd ed", pp.240-244
