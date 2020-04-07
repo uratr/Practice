@@ -31,8 +31,8 @@ elements = cartesianToKeplerian(POSITION_KM, VELOCITY_KMS, MU_KM3S2);
 % 6: É∆ %
 % ++++ %
 
-semimajorAxis = elements(1) ^ 2 / MU_KM3S2 / (1 - elements(4) ^ 2);
-period = 2 * pi / sqrt(MU_KM3S2) * semimajorAxis ^ 1.5;
+semiMajorAxis = elements(1) ^ 2 / MU_KM3S2 / (1 - elements(4) ^ 2);
+period = 2 * pi / sqrt(MU_KM3S2) * semiMajorAxis ^ 1.5;
 meanMotion = 2 * pi / period;
 E0 = 2 * atan(sqrt((1 - elements(4)) / (1 + elements(4))) * tan(elements(6) / 2));
 t0 = (E0 - elements(4) * sin(E0)) / meanMotion;
@@ -50,15 +50,16 @@ velocityPer = [-MU_KM3S2 / elements(1) * sin(trueAnomaly);
                 MU_KM3S2 / elements(1) * (elements(4) + cos(trueAnomaly));
                 0];
 OMEGAdot = - ((3 * sqrt(MU_KM3S2) * J2 * RADIUS_KM ^ 2) /...
-              (2 * (1 - elements(4) ^ 2) ^ 2 * semimajorAxis ^ 3.5)) * cos(elements(2));
+              (2 * (1 - elements(4) ^ 2) ^ 2 * semiMajorAxis ^ 3.5)) * cos(elements(2));
 OMEGAlast = elements(3) + OMEGAdot * DELTA_TIME_S;
 omegadot = - ((3 * sqrt(MU_KM3S2) * J2 * RADIUS_KM ^ 2) /...
-              (2 * (1 - elements(4) ^ 2) ^ 2 * semimajorAxis ^ 3.5)) *...
+              (2 * (1 - elements(4) ^ 2) ^ 2 * semiMajorAxis ^ 3.5)) *...
               (2.5 * sin(elements(2)) ^ 2 - 2);
 omegalast = elements(5) + omegadot * DELTA_TIME_S;
 Qpg = perToGeo(OMEGAlast, elements(2), omegalast);
 positionGeo = Qpg * positionPer;
 velocityGeo = Qpg * velocityPer;
+fprintf("%d\n",E0);
 stateVector = [positionGeo, velocityGeo];
     %%
     % Kepler Eq
