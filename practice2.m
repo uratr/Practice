@@ -17,25 +17,25 @@ fprintf("h: %.0f \ni: %.1f \nƒ¶: %.1f \ne: %.4f \nƒÖ: %.2f \nƒÆ: %.2f\n", h, i, 
 %%
 %Cartesian > Keplerian
 function [hNorm, incliDeg, OMEGADeg, eNorm, omegaDeg, thetaDeg]=cartesianToKeplerian(R,V,MU)
-K         = [0 0 1];
+KUnitVector = [0 0 1];
 % Calculation
-distance  = norm(R);
-radialV   = dot(R, V) / distance;
+distance = norm(R);
+radialV  = dot(R, V) / distance;
 
 % h: angular momentum
-hVector   = cross(R, V);
-hNorm     = norm(hVector);
+hVector  = cross(R, V);
+hNorm    = norm(hVector);
 
 % i: inclination
 incliRad = acos(hVector(3) / hNorm);
 
 % OMEGA: right ascension of the ascending node
-NVector   = cross(K, hVector);
+NVector  = cross(KUnitVector, hVector);
 OMEGARad = calcOMEGA(NVector);
 
 % e: eccentricity
-eVector   = 1 / MU * (cross(V, hVector) - MU * R / distance);
-eNorm     = norm(eVector);
+eVector  = 1 / MU * (cross(V, hVector) - MU * R / distance);
+eNorm    = norm(eVector);
 
 % omega: argument of perigee
 omegaRad = calcomethe(NVector, eVector, eVector(3));
