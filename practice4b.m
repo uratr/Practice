@@ -1,7 +1,8 @@
 % practice 4b
 % Initial value > State vector
 % Reference:
-% ”¼—gr—Y, "ƒ~ƒbƒVƒ‡ƒ“‰ðÍ‚Æ‹O“¹ÝŒv‚ÌŠî‘b", pp.37-
+% Curtis. H, "Orbital Mechanics for engineering students. 2nd ed", pp.123
+% Use Lagrange's coefficient
 clear;
 % Initial Value
 POSITION_KM  = [ -3670 -3870 4400];
@@ -10,7 +11,22 @@ DELTA_TIME_S = 96 * 3600;
 t0 = 0;
 % Constant
 MU_KM3S2 = 398600;
-
+elems = cartesianToKeplerian(POSITION_KM,VELOCITY_KMS,MU_KM3S2);
+%{
+PUnitVector = [ -sin(elems(3)) * cos(elems(2)) * sin(elems(5)) + cos(elems(3)) * cos(elems(5));
+                 cos(elems(3)) * cos(elems(2)) * sin(elems(5)) + sin(elems(3)) * cos(elems(5));
+                 sin(elems(2)) * sin(elems(5))];
+QUnitVector = [ -sin(elems(3)) * cos(elems(2)) * cos(elems(5)) - cos(elems(3)) * sin(elems(5));
+                 cos(elems(3)) * cos(elems(2)) * cos(elems(5)) - sin(elems(3)) * sin(elems(5));
+                 sin(elems(2)) * cos(elems(5))];
+%}
+PUnitVector = [ -sin(elems(3)) * cos(elems(2)) * sin(elems(5)) + cos(elems(3)) * cos(elems(5)) ...
+                -sin(elems(3)) * cos(elems(2)) * cos(elems(5)) - cos(elems(3)) * sin(elems(5)) ...
+                 sin(elems(2)) * cos(elems(5))];
+QUnitVector = [  cos(elems(3)) * cos(elems(2)) * sin(elems(5)) + sin(elems(3)) * cos(elems(5)) ...
+                 cos(elems(3)) * cos(elems(2)) * cos(elems(5)) - sin(elems(3)) * sin(elems(5)) ...
+                 sin(elems(3)) * sin(elems(2))];             
+             
 distance = norm(POSITION_KM);
 energy   = dot(VELOCITY_KMS, VELOCITY_KMS) / 2 - MU_KM3S2 / distance;
 
@@ -20,8 +36,8 @@ PVector  = (-MU_KM3S2 / distance) * POSITION_KM - cross(hVector, VELOCITY_KMS);
 PNorm    = norm(PVector);
 
 WUnitVector = hVector / hNorm;
-PUnitVector = PVector / PNorm;
-QUnitVector = cross(WUnitVector, PUnitVector);
+PUnitVector1 = PVector / PNorm;
+QUnitVector1 = cross(WUnitVector, PUnitVector);
 
 semiMajorAxis   = - MU_KM3S2 / (2 * energy);
 eccentricity    = PNorm / MU_KM3S2;
@@ -47,6 +63,54 @@ z = calcKepler(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, z0, DELTA
 fprintf("%d,   %d,   %d\n",z,semiMajorAxis,eccentricity);
 stateVector = KeptoState(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, energy, PUnitVector, QUnitVector, z);
 fprintf("  %.0f\n  %.0f\n %.0f\n%.3f\n %.3f\n%.4f\n",stateVector);
+%%
+%Cartesian > Keplerian
+function orbitalElementsRad=cartesianToKeplerian(R, V, MU)
+K         = [0 0 1];
+% Calculation
+distance  = norm(R);
+radialV   = dot(R, V) / distance;
+
+% h: angular momentum
+hVector   = cross(R, V);
+hNorm     = norm(hVector);
+
+% i: inclination
+incliRad = acos(hVector(3) / hNorm);
+
+% OMEGA: right ascension of the ascending node
+NVector   = cross(K, hVector);
+OMEGARad = calcOMEGA(NVector);
+
+% e: eccentricity
+eVector   = 1 / MU * (cross(V, hVector) - MU * R / distance);
+eNorm     = norm(eVector);
+
+% omega: argument of perigee
+omegaRad = calcomethe(NVector, eVector, eVector(3));
+
+% theta: true anomaly
+thetaRad = calcomethe(eVector, R, radialV);
+orbitalElementsRad = [hNorm, incliRad, OMEGARad, eNorm, omegaRad, thetaRad];
+    %%
+    % Calculate OMEGA
+    function OMEGA = calcOMEGA(N)
+    if N(2) >= 0
+        OMEGA = acos(N(1) / norm(N));
+    else
+        OMEGA = 2 * pi - acos(N(1) / norm(N));
+    end
+    end
+    %%
+    % calculate omega & theta
+    function angle = calcomethe(A, B, c)
+    if c >= 0
+        angle = acos(dot(A / norm(A), B / norm(B)));
+    else
+        angle = 2 * pi - acos(dot(A / norm(A), B / norm(B)));
+    end
+    end
+end
 %%
 % Kepler Eq
 function zipp = calcKepler(mu, a, e, p, z0, t, t_pi)

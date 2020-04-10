@@ -1,8 +1,8 @@
 % practice 4a
-% Initial value > State vector (only ellipse)
+% Initial value > State vector 
 % Reference:
-% Curtis. H, "Orbital Mechanics for engineering students. 2nd ed", pp.240-244
-% Use practice 2
+% Curtis. H, "Orbital Mechanics for engineering students. 2nd ed", pp.233-244
+% Calc Kepler equation
 clear;
 % Initial Value
 POSITION_KM  = [ -3670 -3870 4400];
@@ -36,6 +36,7 @@ period = 2 * pi / sqrt(MU_KM3S2) * semiMajorAxis ^ 1.5;
 meanMotion = 2 * pi / period;
 E0 = 2 * atan(sqrt((1 - elements(4)) / (1 + elements(4))) * tan(elements(6) / 2));
 t0 = (E0 - elements(4) * sin(E0)) / meanMotion;
+fprintf("%d\n",t0);
 tf = t0 + DELTA_TIME_S;
 np = tf / period;
 tlast = tf - period * fix(np);
@@ -59,7 +60,6 @@ omegalast = elements(5) + omegadot * DELTA_TIME_S;
 Qpg = perToGeo(OMEGAlast, elements(2), omegalast);
 positionGeo = Qpg * positionPer;
 velocityGeo = Qpg * velocityPer;
-fprintf("%d\n",E0);
 stateVector = [positionGeo, velocityGeo];
     %%
     % Kepler Eq
@@ -75,6 +75,7 @@ stateVector = [positionGeo, velocityGeo];
         if abs(ratioi) > TOLERANCE
             Eipp = Ei - ratioi;
         else
+            fprintf("%d\n",Ei);
             break
         end
     end
