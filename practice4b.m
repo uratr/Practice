@@ -12,21 +12,6 @@ t0 = 0;
 % Constant
 MU_KM3S2 = 398600;
 elems = cartesianToKeplerian(POSITION_KM,VELOCITY_KMS,MU_KM3S2);
-%{
-PUnitVector = [ -sin(elems(3)) * cos(elems(2)) * sin(elems(5)) + cos(elems(3)) * cos(elems(5));
-                 cos(elems(3)) * cos(elems(2)) * sin(elems(5)) + sin(elems(3)) * cos(elems(5));
-                 sin(elems(2)) * sin(elems(5))];
-QUnitVector = [ -sin(elems(3)) * cos(elems(2)) * cos(elems(5)) - cos(elems(3)) * sin(elems(5));
-                 cos(elems(3)) * cos(elems(2)) * cos(elems(5)) - sin(elems(3)) * sin(elems(5));
-                 sin(elems(2)) * cos(elems(5))];
-%}
-PUnitVector = [ -sin(elems(3)) * cos(elems(2)) * sin(elems(5)) + cos(elems(3)) * cos(elems(5)) ...
-                -sin(elems(3)) * cos(elems(2)) * cos(elems(5)) - cos(elems(3)) * sin(elems(5)) ...
-                 sin(elems(2)) * cos(elems(5))];
-QUnitVector = [  cos(elems(3)) * cos(elems(2)) * sin(elems(5)) + sin(elems(3)) * cos(elems(5)) ...
-                 cos(elems(3)) * cos(elems(2)) * cos(elems(5)) - sin(elems(3)) * sin(elems(5)) ...
-                 sin(elems(3)) * sin(elems(2))];             
-             
 distance = norm(POSITION_KM);
 energy   = dot(VELOCITY_KMS, VELOCITY_KMS) / 2 - MU_KM3S2 / distance;
 
@@ -36,8 +21,8 @@ PVector  = (-MU_KM3S2 / distance) * POSITION_KM - cross(hVector, VELOCITY_KMS);
 PNorm    = norm(PVector);
 
 WUnitVector = hVector / hNorm;
-PUnitVector1 = PVector / PNorm;
-QUnitVector1 = cross(WUnitVector, PUnitVector);
+PUnitVector = PVector / PNorm;
+QUnitVector = cross(WUnitVector, PUnitVector);
 
 semiMajorAxis   = - MU_KM3S2 / (2 * energy);
 eccentricity    = PNorm / MU_KM3S2;
@@ -60,7 +45,6 @@ else
 end
 z = calcKepler(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, z0, DELTA_TIME_S, t_pi);
 
-fprintf("%d,   %d,   %d\n",z,semiMajorAxis,eccentricity);
 stateVector = KeptoState(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, energy, PUnitVector, QUnitVector, z);
 fprintf("  %.0f\n  %.0f\n %.0f\n%.3f\n %.3f\n%.4f\n",stateVector);
 %%
