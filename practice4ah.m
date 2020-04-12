@@ -1,8 +1,11 @@
+%%
 % practice 4b
 % Initial value > State vector
 % Reference:
-% Curtis. H, "Orbital Mechanics for engineering students. 2nd ed", pp.123
-% Use Lagrange's coefficient
+% 半揚俊雄, "ミッション解析と軌道設計の基礎", pp.37-39.
+% 地球の扁平率を考慮していない．
+% 時間変化が10sec程度であれば4aと同じ結果だが本条件では誤差が生じる．
+%%
 clear;
 % Initial Value
 POSITION_KM  = [ -3670 -3870 4400];
@@ -11,6 +14,7 @@ DELTA_TIME_S = 96 * 3600;
 t0 = 0;
 % Constant
 MU_KM3S2 = 398600;
+
 elems = cartesianToKeplerian(POSITION_KM,VELOCITY_KMS,MU_KM3S2);
 distance = norm(POSITION_KM);
 energy   = dot(VELOCITY_KMS, VELOCITY_KMS) / 2 - MU_KM3S2 / distance;
