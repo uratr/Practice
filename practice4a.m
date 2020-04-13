@@ -14,11 +14,11 @@ DELTA_TIME_S = 96 * 3600;
 t0 = 0;
 % Constant
 MU_KM3S2 = 398600;
-stateVector = method1(POSITION_KM,VELOCITY_KMS,DELTA_TIME_S,t0,MU_KM3S2);
-fprintf("  %.0f\n  %.0f\n %.0f\n%.3f\n %.3f\n%.4f\n",stateVector);
 
+stateVector = method1(POSITION_KM, VELOCITY_KMS, DELTA_TIME_S, t0, MU_KM3S2);
+fprintf("  %.0f\n  %.0f\n %.0f\n%.3f\n %.3f\n%.4f\n",stateVector);
 %%
-function stateVector = method1(POSITION_KM,VELOCITY_KMS,DELTA_TIME_S,t0,MU_KM3S2)
+function stateVector = method1(POSITION_KM, VELOCITY_KMS, DELTA_TIME_S, t0, MU_KM3S2)
 %Calculation
 distance = norm(POSITION_KM);
 energy   = dot(VELOCITY_KMS, VELOCITY_KMS) / 2 - MU_KM3S2 / distance;
@@ -36,20 +36,20 @@ semiMajorAxis   = - MU_KM3S2 / (2 * energy);
 eccentricity    = PNorm / MU_KM3S2;
 semiLatusRectum = (hNorm ^ 2) / MU_KM3S2;
 if energy < 0
-    ecosz0 = 1 - distance / semiMajorAxis;
-    esinz0 = dot(POSITION_KM, VELOCITY_KMS) / sqrt(MU_KM3S2 * semiMajorAxis);
-    z0 = atan(esinz0 / ecosz0);
-    t_pi = t0 - sqrt(semiMajorAxis ^ 3 / MU_KM3S2) * (z0 - esinz0);
+    ecosz0  = 1 - distance / semiMajorAxis;
+    esinz0  = dot(POSITION_KM, VELOCITY_KMS) / sqrt(MU_KM3S2 * semiMajorAxis);
+    z0      = atan(esinz0 / ecosz0);
+    t_pi    = t0 - sqrt(semiMajorAxis ^ 3 / MU_KM3S2) * (z0 - esinz0);
 elseif energy > 0
     esinhz0 = dot(POSITION_KM, VELOCITY_KMS) / sqrt(MU_KM3S2 * (-semiMajorAxis));
-    z0 = asinh(dot(POSITION_KM, VELOCITY_KMS) / (eccentricity * sqrt(MU_KM3S2 * (-semiMajorAxis))));
-    t_pi = t0 - sqrt((-semiMajorAxis) ^ 3 / MU_KM3S2) * (esinhz0 - z0);
+    z0      = asinh(dot(POSITION_KM, VELOCITY_KMS) / (eccentricity * sqrt(MU_KM3S2 * (-semiMajorAxis))));
+    t_pi    = t0 - sqrt((-semiMajorAxis) ^ 3 / MU_KM3S2) * (esinhz0 - z0);
 else
-    z0 = dot(POSITION_KM, VELOCITY_KMS) / sqrt(MU_KM3S2 * semiLatusRectum);
-    t_pi = t0 - 0.5 * sqrt(semiLatusRectum ^ 3 / MU_KM3S2) * (z0 + z0 ^ 3 / 3);
+    z0      = dot(POSITION_KM, VELOCITY_KMS) / sqrt(MU_KM3S2 * semiLatusRectum);
+    t_pi    = t0 - 0.5 * sqrt(semiLatusRectum ^ 3 / MU_KM3S2) * (z0 + z0 ^ 3 / 3);
 end
-z = calcKepler(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, z0, DELTA_TIME_S, t_pi);
 
+z = calcKepler(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, z0, DELTA_TIME_S, t_pi);
 stateVector = UnittoState(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, energy, PUnitVector, QUnitVector, z);
     %%
     % Kepler Eq
