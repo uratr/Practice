@@ -1,10 +1,10 @@
 %%
-% practice 4b
+% practice 4a
 % Initial value > State vector
 % Reference:
 % 半揚俊雄, "ミッション解析と軌道設計の基礎", pp.37-39.
 % 地球の扁平率を考慮していない．
-% 時間変化が10sec程度であれば4aと同じ結果だが本条件では誤差が生じる．
+% 時間変化が10sec程度であれば4acと同じ結果だが本条件では誤差が生じる．
 %%
 clear;
 % Initial Value
@@ -14,8 +14,12 @@ DELTA_TIME_S = 96 * 3600;
 t0 = 0;
 % Constant
 MU_KM3S2 = 398600;
+stateVector = method1(POSITION_KM,VELOCITY_KMS,DELTA_TIME_S,t0,MU_KM3S2);
+fprintf("  %.0f\n  %.0f\n %.0f\n%.3f\n %.3f\n%.4f\n",stateVector);
 
-elems = cartesianToKeplerian(POSITION_KM,VELOCITY_KMS,MU_KM3S2);
+%%
+function stateVector = method1(POSITION_KM,VELOCITY_KMS,DELTA_TIME_S,t0,MU_KM3S2)
+%Calculation
 distance = norm(POSITION_KM);
 energy   = dot(VELOCITY_KMS, VELOCITY_KMS) / 2 - MU_KM3S2 / distance;
 
@@ -31,9 +35,6 @@ QUnitVector = cross(WUnitVector, PUnitVector);
 semiMajorAxis   = - MU_KM3S2 / (2 * energy);
 eccentricity    = PNorm / MU_KM3S2;
 semiLatusRectum = (hNorm ^ 2) / MU_KM3S2;
-
-period = 2 * pi / sqrt(MU_KM3S2) * semiMajorAxis ^ 1.5;
-meanMotion = 2 * pi / period;
 if energy < 0
     ecosz0 = 1 - distance / semiMajorAxis;
     esinz0 = dot(POSITION_KM, VELOCITY_KMS) / sqrt(MU_KM3S2 * semiMajorAxis);
@@ -49,97 +50,49 @@ else
 end
 z = calcKepler(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, z0, DELTA_TIME_S, t_pi);
 
-stateVector = KeptoState(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, energy, PUnitVector, QUnitVector, z);
-fprintf("  %.0f\n  %.0f\n %.0f\n%.3f\n %.3f\n%.4f\n",stateVector);
-%%
-%Cartesian > Keplerian
-function orbitalElementsRad=cartesianToKeplerian(R, V, MU)
-K         = [0 0 1];
-% Calculation
-distance  = norm(R);
-radialV   = dot(R, V) / distance;
-
-% h: angular momentum
-hVector   = cross(R, V);
-hNorm     = norm(hVector);
-
-% i: inclination
-incliRad = acos(hVector(3) / hNorm);
-
-% OMEGA: right ascension of the ascending node
-NVector   = cross(K, hVector);
-OMEGARad = calcOMEGA(NVector);
-
-% e: eccentricity
-eVector   = 1 / MU * (cross(V, hVector) - MU * R / distance);
-eNorm     = norm(eVector);
-
-% omega: argument of perigee
-omegaRad = calcomethe(NVector, eVector, eVector(3));
-
-% theta: true anomaly
-thetaRad = calcomethe(eVector, R, radialV);
-orbitalElementsRad = [hNorm, incliRad, OMEGARad, eNorm, omegaRad, thetaRad];
+stateVector = UnittoState(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, energy, PUnitVector, QUnitVector, z);
     %%
-    % Calculate OMEGA
-    function OMEGA = calcOMEGA(N)
-    if N(2) >= 0
-        OMEGA = acos(N(1) / norm(N));
-    else
-        OMEGA = 2 * pi - acos(N(1) / norm(N));
+    % Kepler Eq
+    function zipp = calcKepler(mu, a, e, p, z0, t, t_pi)
+    nKepler = 100;  % number of iteration of Kepler equation
+    TOLERANCE = 1e-8;
+    zipp = z0;
+    for iKepler = 1:nKepler
+        zi = zipp;
+        if e < 1
+            fz    = zi - e * sin(zi) - sqrt(mu / (a ^ 3)) * (t - t_pi);
+            fzdot = 1 - e * cos(zi);
+        elseif e > 1
+            fz    = e * sinh(zi) - zi - sqrt(mu / (- a) ^ 3) * (t - t_pi);
+            fzdot = e * cosh(zi) - 1;
+        else
+            fz    = zi + zi ^ 3 / 3 - 2 * sqrt(mu / p ^ 3) * (t - t_pi);
+            fzdot = 1 + zi ^ 2;
+        end
+        ratioi = fz / fzdot;
+        if abs(ratioi) > TOLERANCE
+            zipp = zi - ratioi;
+        else
+            break
+        end
     end
     end
     %%
-    % calculate omega & theta
-    function angle = calcomethe(A, B, c)
-    if c >= 0
-        angle = acos(dot(A / norm(A), B / norm(B)));
+    % calculate position & velocity
+    function stateVector = UnittoState(mu, a, e, p, energy, P, Q, z)
+    if energy < 0
+        R = a * (cos(z) - e) * P + sqrt(a * p) * sin(z) * Q;
+        r = norm(R);
+        V = - sqrt(mu * a) / r * sin(z) * P + sqrt(mu * p) / r * cos(z) * Q;
+    elseif energy > 0
+        R = - a * (e - cosh(z)) * P + sqrt(- a * p) * sinh(z) * Q;
+        r = norm(R);
+        V = - sqrt(mu * (- a)) / r * sinh(z) * P + sqrt(mu * p) / r * cosh(z) * Q;
     else
-        angle = 2 * pi - acos(dot(A / norm(A), B / norm(B)));
+        R = p / 2 * (1 - z ^ 2) * P + p * z * Q;
+        r = norm(R);
+        V = - sqrt(mu * p) / r * z * Q + sqrt(mu * p) / r * Q;
     end
+    stateVector = [R, V];
     end
-end
-%%
-% Kepler Eq
-function zipp = calcKepler(mu, a, e, p, z0, t, t_pi)
-nKepler = 100;  % number of iteration of Kepler equation
-TOLERANCE = 1e-8;
-zipp = z0;
-for iKepler = 1:nKepler
-    zi = zipp;
-    if e < 1
-        fz    = zi - e * sin(zi) - sqrt(mu / (a ^ 3)) * (t - t_pi);
-        fzdot = 1 - e * cos(zi);
-    elseif e > 1
-        fz    = e * sinh(zi) - zi - sqrt(mu / (- a) ^ 3) * (t - t_pi);
-        fzdot = e * cosh(zi) - 1;
-    else
-        fz    = zi + zi ^ 3 / 3 - 2 * sqrt(mu / p ^ 3) * (t - t_pi);
-        fzdot = 1 + zi ^ 2;
-    end
-    ratioi = fz / fzdot;
-    if abs(ratioi) > TOLERANCE
-        zipp = zi - ratioi;
-    else
-        break
-    end
-end
-end
-%%
-% calculate position & velocity
-function stateVector = KeptoState(mu, a, e, p, energy, P, Q, z)
-if energy < 0
-    R = a * (cos(z) - e) * P + sqrt(a * p) * sin(z) * Q;
-    r = norm(R);
-    V = - sqrt(mu * a) / r * sin(z) * P + sqrt(mu * p) / r * cos(z) * Q;
-elseif energy > 0
-    R = - a * (e - cosh(z)) * P + sqrt(- a * p) * sinh(z) * Q;
-    r = norm(R);
-    V = - sqrt(mu * (- a)) / r * sinh(z) * P + sqrt(mu * p) / r * cosh(z) * Q;
-else
-    R = p / 2 * (1 - z ^ 2) * P + p * z * Q;
-    r = norm(R);
-    V = - sqrt(mu * p) / r * z * Q + sqrt(mu * p) / r * Q;
-end
-stateVector = [R, V];
 end
