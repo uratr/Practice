@@ -3,8 +3,7 @@
 % Initial value > State vector
 % Reference:
 % 半揚俊雄, "ミッション解析と軌道設計の基礎", pp.37-39.
-% 地球の扁平率を考慮していない．
-% 時間変化が10sec程度であれば4acと同じ結果だが本条件では誤差が生じる．
+% 4aと最後の関数のみ異なる
 %%
 clear;
 % Initial Value
@@ -46,8 +45,8 @@ else
 end
 
 z = calcKepler(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, z0, DELTA_TIME_S, t_pi);
-stateVector = LagtoState(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, energy, POSITION_KM,...
-                         VELOCITY_KMS, z, z0, DELTA_TIME_S, t0);
+stateVector = LagtoState(MU_KM3S2, semiMajorAxis, semiLatusRectum, energy, POSITION_KM, VELOCITY_KMS,...
+                         z, z0, DELTA_TIME_S, t0);
     %%
     % Kepler Eq
     function zipp = calcKepler(mu, a, e, p, z0, t, t_pi)
@@ -76,18 +75,18 @@ stateVector = LagtoState(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum,
     end
     %%
     % calculate position & velocity
-    function stateVector = LagtoState(mu, a, e, p, energy, R0, V0, z, z0, t, t0)
+    function stateVector = LagtoState(mu, a, p, energy, R0, V0, z, z0, t, t0)
     r0 = norm(R0);
     delta_z = z - z0;
     if energy < 0
-        f = 1 - a / r0 *(1 - cos(delta_z));
+        f = 1 - a / r0 * (1 - cos(delta_z));
         g = t - t0 - sqrt(a ^ 3 / mu) * (delta_z - sin(delta_z));
     elseif energy > 0
-        f = 1 - a / r0 *(1 - cos(delta_z));
-        g = t - t0 - sqrt(a ^ 3 / mu) * (delta_z - sin(delta_z));
+        f = 1 - a / r0 * (1 - cosh(delta_z));
+        g = t - t0 + sqrt((- a) ^ 3 / mu) * (delta_z - sinh(delta_z));
     else
-        f = 1 - a / r0 *(1 - cos(delta_z));
-        g = t - t0 - sqrt(a ^ 3 / mu) * (delta_z - sin(delta_z));
+        f = 1 - p / (2 * r0) * (delta_z ^ 2);
+        g = t - t0 - 1 / 6 * sqrt(p ^ 3 / mu) * (delta_z ^ 3);
     end
     R = f * R0 + g * V0;
     r = norm(R);
@@ -95,11 +94,11 @@ stateVector = LagtoState(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum,
         fd = - sqrt(mu * a) / (r * r0) * sin(delta_z);
         gd = 1 - a / r * (1 - cos(delta_z));
     elseif energy > 0
-        fd = - sqrt(mu * a) / (r * r0) * sin(delta_z);
-        gd = 1 - a / r * (1 - cos(delta_z));
+        fd = - sqrt(mu * (- a)) / (r * r0) * sinh(delta_z);
+        gd = 1 - a / r * (1 - cosh(delta_z));
     else
-        fd = - sqrt(mu * a) / (r * r0) * sin(delta_z);
-        gd = 1 - a / r * (1 - cos(delta_z));
+        fd = - sqrt(mu * p) / (r * r0) * delta_z;
+        gd = 1 - p / (2 * r) * (delta_z ^ 2);
     end
     V = fd * R0 + gd * V0;
     stateVector = [R, V];
