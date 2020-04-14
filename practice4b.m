@@ -2,7 +2,7 @@
 % practice 4b
 % Initial value > State vector
 % Reference:
-% 半揚俊雄, "ミッション解析と軌道設計の基礎", pp.37-39.
+% 半揚俊雄, "ミッション解析と軌道設計の基礎", pp.59-64.
 % 4aと最後の関数のみ異なる
 %%
 clear;
