@@ -46,7 +46,8 @@ else
 end
 
 z = calcKepler(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, z0, DELTA_TIME_S, t_pi);
-stateVector = LagtoState(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, energy, POSITION_KM, VELOCITY_KMS, z, z0);
+stateVector = LagtoState(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum, energy, POSITION_KM,...
+                         VELOCITY_KMS, z, z0, DELTA_TIME_S, t0);
     %%
     % Kepler Eq
     function zipp = calcKepler(mu, a, e, p, z0, t, t_pi)
@@ -75,22 +76,32 @@ stateVector = LagtoState(MU_KM3S2, semiMajorAxis, eccentricity, semiLatusRectum,
     end
     %%
     % calculate position & velocity
-    function stateVector = LagtoState(mu, a, e, p, energy, R, V, z, z0)
-        r0 = norm(R);
-        delta_z = z - z0;
+    function stateVector = LagtoState(mu, a, e, p, energy, R0, V0, z, z0, t, t0)
+    r0 = norm(R0);
+    delta_z = z - z0;
     if energy < 0
         f = 1 - a / r0 *(1 - cos(delta_z));
-        g = 
-        
+        g = t - t0 - sqrt(a ^ 3 / mu) * (delta_z - sin(delta_z));
     elseif energy > 0
-        R = - a * (e - cosh(z)) * P + sqrt(- a * p) * sinh(z) * Q;
-        r = norm(R);
-        V = - sqrt(mu * (- a)) / r * sinh(z) * P + sqrt(mu * p) / r * cosh(z) * Q;
+        f = 1 - a / r0 *(1 - cos(delta_z));
+        g = t - t0 - sqrt(a ^ 3 / mu) * (delta_z - sin(delta_z));
     else
-        R = p / 2 * (1 - z ^ 2) * P + p * z * Q;
-        r = norm(R);
-        V = - sqrt(mu * p) / r * z * Q + sqrt(mu * p) / r * Q;
+        f = 1 - a / r0 *(1 - cos(delta_z));
+        g = t - t0 - sqrt(a ^ 3 / mu) * (delta_z - sin(delta_z));
     end
+    R = f * R0 + g * V0;
+    r = norm(R);
+    if energy < 0
+        fd = - sqrt(mu * a) / (r * r0) * sin(delta_z);
+        gd = 1 - a / r * (1 - cos(delta_z));
+    elseif energy > 0
+        fd = - sqrt(mu * a) / (r * r0) * sin(delta_z);
+        gd = 1 - a / r * (1 - cos(delta_z));
+    else
+        fd = - sqrt(mu * a) / (r * r0) * sin(delta_z);
+        gd = 1 - a / r * (1 - cos(delta_z));
+    end
+    V = fd * R0 + gd * V0;
     stateVector = [R, V];
     end
 end
