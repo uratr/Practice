@@ -2,9 +2,7 @@
 % practice 4b
 % Initial value > State vector
 % Reference:
-% 半揚俊雄, "ミッション解析と軌道設計の基礎", pp.37-39.
-% 地球の扁平率を考慮していない．
-% 時間変化が10sec程度であれば4aと同じ結果だが本条件では誤差が生じる．
+% 半揚俊雄, "ミッション解析と軌道設計の基礎", pp.
 %%
 clear;
 % Initial Value
