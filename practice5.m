@@ -3,7 +3,7 @@
 % solve Lambert probrem
 % 単位はkm,s
 % Reference:
-% 半揚俊雄, "ミッション解析と軌道設計の基礎", pp.74-76.
+% 半揚俊雄, "ミッション解析と軌道設計の基礎", pp.95-98.
 clear;
 %%
 R1 = [  5000 10000 2100];
@@ -74,7 +74,7 @@ function [V1, V2] = calc_Lam(R1, R2, DELTA_T, NN, k, MU_Ea_KM3S2)
     end
     %%
     if NN == 0
-        [a, p] = Calc_Newton0(a_m, MU_Ea_KM3S2, s, c, trajectory, NN, theta, DELTA_T, delta_tm1, r1, r2);
+        p = Calc_Newton0(a_m, MU_Ea_KM3S2, s, c, trajectory, NN, theta, DELTA_T, delta_tm1, r1, r2);
         [V1, V2] = Calc_vel(MU_Ea_KM3S2, p, R1, R2, theta);
         fprintf('Transfer Angle[deg]: %.2f\n',theta/pi*180);
         fprintf('Velocity Dep.[km/s]: %.2f  %.2f  %.2f,\n',V1);
@@ -192,7 +192,7 @@ function [V1, V2] = calc_Lam(R1, R2, DELTA_T, NN, k, MU_Ea_KM3S2)
 end
 %%
 % ニュートンラフソン法
-function [a, p] = Calc_Newton0(a_m, mu, s, c, trajectory, NN, theta, DELTA_T, delta_tm1, r1, r2)
+function p = Calc_Newton0(a_m, mu, s, c, trajectory, NN, theta, DELTA_T, delta_tm1, r1, r2)
     n = 50;         %繰り返し計算の上限
     a = a_m * 1.1;    %初期値
     for i = 1 : n
