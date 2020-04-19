@@ -1,23 +1,25 @@
 %%
 % practice 6a
-%%
-% practice 4a
 % Initial value > State vector
-% Reference:
+% Reference(Kepler):
 % 半揚俊雄, "ミッション解析と軌道設計の基礎", pp.37-39.
-% 地球の扁平率を考慮していない．
-% 時間変化が10sec程度であれば4acと同じ結果だが本条件では誤差が生じる．
+% Reference(EOM):
+% 半揚俊雄, "ミッション解析と軌道設計の基礎", pp.1-3.
+% Reference(ODE):
+% https://www.math.kyoto-u.ac.jp/~karel/files/notes_biseki2matlab_2018.pdf
+% ODEでは配列のまま計算すると2要素目が異なる挙動を示すため個別計算．
+% 各手法で独立して計算可能．．
 %%
 % 共通
 clear;
 % Initial Value
 POSITION_KM  = [ -3670 -3870 4400];
 VELOCITY_KMS = [   4.7  -7.4    1];
-DELTA_TIME_S = 96 * 3600;
+DELTA_TIME_S = 10;
 t0 = 0;
 % Constant
 MU_KM3S2 = 398600;
-%{
+
 %%
 % Kepler Eq.
 stateVector = method1(POSITION_KM, VELOCITY_KMS, DELTA_TIME_S, t0, MU_KM3S2);
@@ -44,23 +46,26 @@ while t <= DELTA_TIME_S
      X  = X + h / 6 * (X_K1 + 2 * X_K2 + 2 * X_K3 + X_K4);
 end
 fprintf("RK4:\n %.0f\n  %.0f\n %.0f\n%.3f\n %.3f\n%.4f\n",X,V);
-%}
+
 %%
 % ODE
-tspan = [t0 DELTA_TIME_S];
+x = -1:0.1:1;
+v = -1:0.1:1;
+[x,v] = meshgrid(x,v);
 X0 = POSITION_KM;
 V0 = VELOCITY_KMS;
-
-[t,y] = ode45(@myODE,tspan,[X0; V0]);
-fprintf("ODE:\n %.0f\n  %.0f\n %.0f\n%.3f\n %.3f\n%.4f\n",y(end,:));
-function dy = myODE(t,Y)
 mu = 398600;
-POSITION_KM  = [ -3670 -3870 4400];
-r = norm(POSITION_KM);
-dy = [Y(4:6); - mu / (r ^ 3) * Y(1:3)];
-end
+r = norm(X0);
+T = t0:0.05:DELTA_TIME_S;
+ODEbane = @(t,x)[x(2);  - mu / (r ^ 3) .* x(1)];
+[~,XV1] = ode45(ODEbane,T,[X0(1);V0(1)]);
+[~,XV2] = ode45(ODEbane,T,[X0(2);V0(2)]);
+[~,XV3] = ode45(ODEbane,T,[X0(3);V0(3)]);
+fprintf("ODE:\n %.0f\n  %.0f\n %.0f\n%.3f\n %.3f\n%.4f\n",...
+        XV1(end,1),XV2(end,1),XV3(end,1),XV1(end,2),XV2(end,2),XV3(end,2));
+
 %%
-%{
+
 % For Kepler Eq.
 function stateVector = method1(POSITION_KM, VELOCITY_KMS, DELTA_TIME_S, t0, MU_KM3S2)
 %Calculation
@@ -150,4 +155,3 @@ end
 function result = RK4_POS(v)
 result = v;
 end
-%}
