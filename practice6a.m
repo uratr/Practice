@@ -17,6 +17,7 @@ DELTA_TIME_S = 96 * 3600;
 t0 = 0;
 % Constant
 MU_KM3S2 = 398600;
+%{
 %%
 % Kepler Eq.
 stateVector = method1(POSITION_KM, VELOCITY_KMS, DELTA_TIME_S, t0, MU_KM3S2);
@@ -43,11 +44,23 @@ while t <= DELTA_TIME_S
      X  = X + h / 6 * (X_K1 + 2 * X_K2 + 2 * X_K3 + X_K4);
 end
 fprintf("RK4:\n %.0f\n  %.0f\n %.0f\n%.3f\n %.3f\n%.4f\n",X,V);
-
+%}
 %%
 % ODE
+tspan = [t0 DELTA_TIME_S];
+X0 = POSITION_KM;
+V0 = VELOCITY_KMS;
 
+[t,y] = ode45(@myODE,tspan,[X0; V0]);
+fprintf("ODE:\n %.0f\n  %.0f\n %.0f\n%.3f\n %.3f\n%.4f\n",y(end,:));
+function dy = myODE(t,Y)
+mu = 398600;
+POSITION_KM  = [ -3670 -3870 4400];
+r = norm(POSITION_KM);
+dy = [Y(4:6); - mu / (r ^ 3) * Y(1:3)];
+end
 %%
+%{
 % For Kepler Eq.
 function stateVector = method1(POSITION_KM, VELOCITY_KMS, DELTA_TIME_S, t0, MU_KM3S2)
 %Calculation
@@ -137,3 +150,4 @@ end
 function result = RK4_POS(v)
 result = v;
 end
+%}
