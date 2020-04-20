@@ -57,10 +57,10 @@ V0 = VELOCITY_KMS;
 mu = 398600;
 r = norm(X0);
 T = t0:0.05:DELTA_TIME_S;
-ODEbane = @(t,x)[x(2);  - mu / (r ^ 3) .* x(1)];
-[~,XV1] = ode45(ODEbane,T,[X0(1);V0(1)]);
-[~,XV2] = ode45(ODEbane,T,[X0(2);V0(2)]);
-[~,XV3] = ode45(ODEbane,T,[X0(3);V0(3)]);
+EOM = @(t,x)[x(2);  - mu / (r ^ 3) .* x(1)];
+[~,XV1] = ode45(EOM,T,[X0(1);V0(1)]);
+[~,XV2] = ode45(EOM,T,[X0(2);V0(2)]);
+[~,XV3] = ode45(EOM,T,[X0(3);V0(3)]);
 fprintf("ODE:\n %.0f\n  %.0f\n %.0f\n%.3f\n %.3f\n%.4f\n",...
         XV1(end,1),XV2(end,1),XV3(end,1),XV1(end,2),XV2(end,2),XV3(end,2));
 
